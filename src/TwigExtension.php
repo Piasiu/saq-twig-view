@@ -21,6 +21,9 @@ class TwigExtension extends AbstractExtension
         $this->container = $container;
     }
 
+    /**
+     * @return TwigFunction[]
+     */
     public function getFunctions(): array
     {
         return [
