@@ -1,0 +1,27 @@
+{
+    "name": "piasiu/saq-twig-view",
+    "type": "library",
+    "description": "Extension to the Saq framework for Twig view support",
+    "keywords": ["piasiu","saq","twig","view","extension"],
+    "homepage": "https://github.com/Piasiu/saq-twig-view",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Paweł Piaskowy",
+            "email": "pawel@piaskowy.net",
+            "homepage": "http://piaskowy.net"
+        }
+    ],
+    "require": {
+        "php": ">=8.0.0",
+        "piasiu/saq": "dev-main",
+        "twig/twig": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Saq\\Views\\": "src"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
