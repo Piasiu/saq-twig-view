@@ -2,7 +2,7 @@
 namespace Saq\Views;
 
 use Saq\Interfaces\ContainerInterface;
-use Saq\Interfaces\Routing\ActionInterface;
+use Saq\Routing\Route;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -60,10 +60,10 @@ class TwigExtension extends AbstractExtension
      */
     public function getCurrentUrl(): string
     {
-        /** @var ActionInterface $action */
-        $action = $this->container->getRequest()->getAttribute('action');
+        /** @var Route $route */
+        $route = $this->container->getRequest()->getAttribute('route');
         $router = $this->container->getRouter();
-        return $router->urlFor($action->getRoute()->getName(), $action->getArguments());
+        return $router->urlFor($route->getName(), $route->getArguments());
     }
 
     /**
