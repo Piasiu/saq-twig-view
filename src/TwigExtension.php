@@ -31,7 +31,8 @@ class TwigExtension extends AbstractExtension
             new TwigFunction('url_for', [$this, 'getUrlFor']),
             new TwigFunction('current_url', [$this, 'getCurrentUrl']),
             new TwigFunction('uri_for', [$this, 'getUriFor']),
-            new TwigFunction('current_uri', [$this, 'getCurrentUri'])
+            new TwigFunction('current_uri', [$this, 'getCurrentUri']),
+            new TwigFunction('mail_to', [$this, 'getMailTo'])
         ];
     }
 
@@ -83,5 +84,14 @@ class TwigExtension extends AbstractExtension
     public function getCurrentUri(): string
     {
         return $this->container->getRequest()->getUri();
+    }
+
+    /**
+     * @param string $email
+     * @return string
+     */
+    public function getMailTo(string $email): string
+    {
+        return "mailto:{$email}";
     }
 }
