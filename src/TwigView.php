@@ -3,6 +3,7 @@ namespace Saq\Views;
 
 use RuntimeException;
 use Saq\Interfaces\ContainerInterface;
+use Saq\Routing\Route;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -20,7 +21,7 @@ class TwigView
     /**
      * @var Environment
      */
-    private Environment $twig;
+    private Environment $environment;
 
     /**
      * @param ContainerInterface $container
@@ -38,9 +39,9 @@ class TwigView
         $loader = new FilesystemLoader($settings['paths']);
 
         $options = isset($settings['options']) ? $settings['options'] : [];
-        $this->twig = new Environment($loader, $options);
+        $this->environment = new Environment($loader, $options);
 
-        $this->twig->addExtension(new TwigExtension($container));
+        $this->environment->addExtension(new TwigExtension($container));
         $extensions = isset($settings['extensions']) ? $settings['extensions'] : [];
 
         foreach ($extensions as $extension)
@@ -51,7 +52,7 @@ class TwigView
                 throw new RuntimeException($message);
             }
 
-            $this->twig->addExtension($extension);
+            $this->environment->addExtension($extension);
         }
     }
 
@@ -65,7 +66,29 @@ class TwigView
      */
     public function render(string $templateName, array $context = []): string
     {
-        $template = $this->twig->load($templateName);
+        $template = $this->environment->load($templateName);
         return $template->render($context);
+    }
+
+    /**
+     * @return Environment
+     */
+    public function getEnvironment(): Environment
+    {
+        return $this->environment;
+    }
+
+    private function addGlobals(): void
+    {
+        $request = $this->container->getRequest();
+        /** @var Route $route */
+        $route = $request->getAttribute('route');
+        $data = [
+            'settings' => $this->container->getSettings(),
+            'request' => $request,
+            'route' => $route
+        ];
+
+        $this->environment->addGlobal('app', $data);
     }
 }
