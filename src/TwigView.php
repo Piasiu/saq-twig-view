@@ -40,7 +40,7 @@ class TwigView
 
         $options = isset($settings['options']) ? $settings['options'] : [];
         $this->environment = new Environment($loader, $options);
-        $this->addGlobals();
+        $this->environment->addGlobal('appSettings', $this->container->getSettings());
 
         $this->environment->addExtension(new TwigExtension($container));
         $extensions = isset($settings['extensions']) ? $settings['extensions'] : [];
@@ -77,19 +77,5 @@ class TwigView
     public function getEnvironment(): Environment
     {
         return $this->environment;
-    }
-
-    private function addGlobals(): void
-    {
-        $request = $this->container->getRequest();
-        /** @var Route $route */
-        $route = $request->getAttribute('route');
-        $data = [
-            'settings' => $this->container->getSettings(),
-            'request' => $request,
-            'route' => $route
-        ];
-
-        $this->environment->addGlobal('app', $data);
     }
 }
