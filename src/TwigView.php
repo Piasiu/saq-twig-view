@@ -40,6 +40,7 @@ class TwigView
 
         $options = isset($settings['options']) ? $settings['options'] : [];
         $this->environment = new Environment($loader, $options);
+        $this->addGlobals();
 
         $this->environment->addExtension(new TwigExtension($container));
         $extensions = isset($settings['extensions']) ? $settings['extensions'] : [];
