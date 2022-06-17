@@ -14,8 +14,9 @@
     ],
     "require": {
         "php": ">=8.0.0",
+        "twig/twig": "^3.0",
         "piasiu/saq": "dev-main",
-        "twig/twig": "^3.0"
+        "piasiu/saq-trans": "dev-main"
     },
     "autoload": {
         "psr-4": {

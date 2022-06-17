@@ -2,7 +2,9 @@
 namespace Saq\Views;
 
 use Saq\Interfaces\ContainerInterface;
+use Saq\Interfaces\Http\RequestInterface;
 use Saq\Routing\Route;
+use Saq\Trans\Translator;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -14,11 +16,29 @@ class TwigExtension extends AbstractExtension
     private ContainerInterface $container;
 
     /**
+     * @var RequestInterface
+     */
+    private RequestInterface $request;
+
+    /**
+     * @var Route
+     */
+    private Route $route;
+
+    /**
+     * @var Translator
+     */
+    private Translator $translator;
+
+    /**
      * @param ContainerInterface $container
      */
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
+        $this->request = $container->getRequest();
+        $this->route = $this->request->getAttribute('route');
+        $this->translator = $container['translator'];
     }
 
     /**
@@ -32,7 +52,8 @@ class TwigExtension extends AbstractExtension
             new TwigFunction('current_url', [$this, 'getCurrentUrl']),
             new TwigFunction('uri_for', [$this, 'getUriFor']),
             new TwigFunction('current_uri', [$this, 'getCurrentUri']),
-            new TwigFunction('mail_to', [$this, 'getMailTo'])
+            new TwigFunction('trans', [$this, 'translate']),
+            new TwigFunction('ptrans', [$this, 'pluralTranslate'])
         ];
     }
 
@@ -61,10 +82,8 @@ class TwigExtension extends AbstractExtension
      */
     public function getCurrentUrl(): string
     {
-        /** @var Route $route */
-        $route = $this->container->getRequest()->getAttribute('route');
         $router = $this->container->getRouter();
-        return $router->urlFor($route->getName(), $route->getArguments());
+        return $router->urlFor($this->route->getName(), $this->route->getArguments());
     }
 
     /**
@@ -93,5 +112,33 @@ class TwigExtension extends AbstractExtension
     public function getMailTo(string $email): string
     {
         return "mailto:{$email}";
+    }
+
+    /**
+     * @param string $text
+     * @param array $parameters
+     * @return string
+     */
+    public function translate(string $text, array $parameters = []): string
+    {
+        $languageCode = $this->request->getAttribute('language');
+        return $this->translator->translate($this->getSubPathFromRoute(), $text, $parameters, $languageCode);
+    }
+
+    /**
+     * @param string $text
+     * @param int $value
+     * @param array $parameters
+     * @return string
+     */
+    public function pluralTranslate(string $text, int $value, array $parameters = []): string
+    {
+        $languageCode = $this->request->getAttribute('language');
+        return $this->translator->pluralTranslate($this->getSubPathFromRoute(), $text, $value, $parameters, $languageCode);
+    }
+
+    private function getSubPathFromRoute(RequestInterface $request): string
+    {
+        return str_replace('-', DIRECTORY_SEPARATOR, $this->route->getName());
     }
 }
