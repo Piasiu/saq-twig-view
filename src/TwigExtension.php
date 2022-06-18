@@ -8,6 +8,7 @@ use Saq\Interfaces\Http\RequestInterface;
 use Saq\Routing\Route;
 use Saq\Trans\Translator;
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class TwigExtension extends AbstractExtension
@@ -43,6 +44,17 @@ class TwigExtension extends AbstractExtension
     /**
      * @return TwigFunction[]
      */
+    public function getFilters(): array
+    {
+        return [
+            new TwigFilter('trans', [$this, 'translate']),
+            new TwigFilter('ptrans', [$this, 'pluralTranslate'])
+        ];
+    }
+
+    /**
+     * @return TwigFunction[]
+     */
     public function getFunctions(): array
     {
         return [
@@ -50,9 +62,7 @@ class TwigExtension extends AbstractExtension
             new TwigFunction('url_for', [$this, 'getUrlFor']),
             new TwigFunction('current_url', [$this, 'getCurrentUrl']),
             new TwigFunction('uri_for', [$this, 'getUriFor']),
-            new TwigFunction('current_uri', [$this, 'getCurrentUri']),
-            new TwigFunction('trans', [$this, 'translate']),
-            new TwigFunction('ptrans', [$this, 'pluralTranslate'])
+            new TwigFunction('current_uri', [$this, 'getCurrentUri'])
         ];
     }
 
