@@ -118,12 +118,14 @@ class TwigExtension extends AbstractExtension
     /**
      * @param string $text
      * @param array $parameters
+     * @param string|null $fileSubPath
      * @return string
      */
-    public function translate(string $text, array $parameters = []): string
+    public function translate(string $text, array $parameters = [], ?string $fileSubPath = null): string
     {
+        $fileSubPath = $fileSubPath ?? $this->getSubPathFromRoute();
         $languageCode = $this->container->getRequest()->getAttribute('language');
-        return $this->translator->translate($this->getSubPathFromRoute(), $text, $parameters, $languageCode);
+        return $this->translator->translate($fileSubPath, $text, $parameters, $languageCode);
     }
 
     /**
@@ -132,13 +134,14 @@ class TwigExtension extends AbstractExtension
      * @param array $parameters
      * @return string
      */
-    public function pluralTranslate(string $text, int $value, array $parameters = []): string
+    public function pluralTranslate(string $text, int $value, array $parameters = [], ?string $fileSubPath = null): string
     {
         if ($this->translator === null)
         {
             return throw new ServiceNotFoundException(Translator::class);
         }
 
+        $fileSubPath = $fileSubPath ?? $this->getSubPathFromRoute();
         $languageCode = $this->container->getRequest()->getAttribute('language');
         return $this->translator->pluralTranslate($this->getSubPathFromRoute(), $text, $value, $parameters, $languageCode);
     }
