@@ -16,16 +16,6 @@ class TwigExtension extends AbstractExtension
     private ContainerInterface $container;
 
     /**
-     * @var RequestInterface
-     */
-    private RequestInterface $request;
-
-    /**
-     * @var Route
-     */
-    private Route $route;
-
-    /**
      * @var Translator
      */
     private Translator $translator;
@@ -36,8 +26,6 @@ class TwigExtension extends AbstractExtension
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->request = $container->getRequest();
-        $this->route = $this->request->getAttribute('route');
         $this->translator = $container['translator'];
     }
 
@@ -82,8 +70,10 @@ class TwigExtension extends AbstractExtension
      */
     public function getCurrentUrl(): string
     {
+        /** @var Route $route */
+        $route = $this->container->getRequest()->getAttribute('route');
         $router = $this->container->getRouter();
-        return $router->urlFor($this->route->getName(), $this->route->getArguments());
+        return $router->urlFor($route->getName(), $route->getArguments());
     }
 
     /**
@@ -121,7 +111,7 @@ class TwigExtension extends AbstractExtension
      */
     public function translate(string $text, array $parameters = []): string
     {
-        $languageCode = $this->request->getAttribute('language');
+        $languageCode = $this->container->getRequest()->getAttribute('language');
         return $this->translator->translate($this->getSubPathFromRoute(), $text, $parameters, $languageCode);
     }
 
@@ -139,6 +129,8 @@ class TwigExtension extends AbstractExtension
 
     private function getSubPathFromRoute(RequestInterface $request): string
     {
-        return str_replace('-', DIRECTORY_SEPARATOR, $this->route->getName());
+        /** @var Route $route */
+        $route = $this->container->getRequest()->getAttribute('route');
+        return str_replace('-', DIRECTORY_SEPARATOR, $route->getName());
     }
 }
