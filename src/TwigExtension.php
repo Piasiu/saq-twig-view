@@ -1,6 +1,8 @@
 <?php
 namespace Saq\Views;
 
+use Saq\Exceptions\Container\ContainerException;
+use Saq\Exceptions\Container\ServiceNotFoundException;
 use Saq\Interfaces\ContainerInterface;
 use Saq\Interfaces\Http\RequestInterface;
 use Saq\Routing\Route;
@@ -16,9 +18,9 @@ class TwigExtension extends AbstractExtension
     private ContainerInterface $container;
 
     /**
-     * @var Translator
+     * @var Translator|null
      */
-    private Translator $translator;
+    private ?Translator $translator = null;
 
     /**
      * @param ContainerInterface $container
@@ -26,7 +28,16 @@ class TwigExtension extends AbstractExtension
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->translator = $container['translator'];
+
+        if ($container->has('translator'))
+        {
+            if (!($container['translator'] instanceof Translator))
+            {
+                throw new ContainerException(sprintf('Container "translator" service must be of type %s.', Translator::class));
+            }
+
+            $this->translator = $container['translator'];
+        }
     }
 
     /**
@@ -123,12 +134,22 @@ class TwigExtension extends AbstractExtension
      */
     public function pluralTranslate(string $text, int $value, array $parameters = []): string
     {
-        $languageCode = $this->request->getAttribute('language');
+        if ($this->translator === null)
+        {
+            return throw new ServiceNotFoundException(Translator::class);
+        }
+
+        $languageCode = $this->container->getRequest()->getAttribute('language');
         return $this->translator->pluralTranslate($this->getSubPathFromRoute(), $text, $value, $parameters, $languageCode);
     }
 
     private function getSubPathFromRoute(RequestInterface $request): string
     {
+        if ($this->translator === null)
+        {
+            return throw new ServiceNotFoundException(Translator::class);
+        }
+
         /** @var Route $route */
         $route = $this->container->getRequest()->getAttribute('route');
         return str_replace('-', DIRECTORY_SEPARATOR, $route->getName());
