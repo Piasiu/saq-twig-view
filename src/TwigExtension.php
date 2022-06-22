@@ -1,6 +1,7 @@
 <?php
 namespace Saq\Views;
 
+use JetBrains\PhpStorm\Pure;
 use Saq\Exceptions\Container\ContainerException;
 use Saq\Exceptions\Container\ServiceNotFoundException;
 use Saq\Interfaces\ContainerInterface;
@@ -47,6 +48,8 @@ class TwigExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
+            new TwigFilter('lpad', [$this, 'leftPad']),
+            new TwigFilter('rpad', [$this, 'rightPad']),
             new TwigFilter('trans', [$this, 'translate']),
             new TwigFilter('ptrans', [$this, 'pluralTranslate'])
         ];
@@ -123,6 +126,30 @@ class TwigExtension extends AbstractExtension
     public function getMailTo(string $email): string
     {
         return "mailto:{$email}";
+    }
+
+    /**
+     * @param string $text
+     * @param string $pad
+     * @param int $length
+     * @return string
+     */
+    #[Pure]
+    public function leftPad(string $text, string $pad, int $length): string
+    {
+        return str_pad($text, $length, $pad, STR_PAD_LEFT);
+    }
+
+    /**
+     * @param string $text
+     * @param string $pad
+     * @param int $length
+     * @return string
+     */
+    #[Pure]
+    public function rightPad(string $text, string $pad, int $length): string
+    {
+        return str_pad($text, $length, $pad, STR_PAD_RIGHT);
     }
 
     /**
