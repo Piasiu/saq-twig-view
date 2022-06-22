@@ -50,6 +50,7 @@ class TwigExtension extends AbstractExtension
         return [
             new TwigFilter('lpad', [$this, 'leftPad']),
             new TwigFilter('rpad', [$this, 'rightPad']),
+            new TwigFilter('price', [$this, 'formatPrice']),
             new TwigFilter('trans', [$this, 'translate']),
             new TwigFilter('ptrans', [$this, 'pluralTranslate'])
         ];
@@ -65,7 +66,8 @@ class TwigExtension extends AbstractExtension
             new TwigFunction('url_for', [$this, 'getUrlFor']),
             new TwigFunction('current_url', [$this, 'getCurrentUrl']),
             new TwigFunction('uri_for', [$this, 'getUriFor']),
-            new TwigFunction('current_uri', [$this, 'getCurrentUri'])
+            new TwigFunction('current_uri', [$this, 'getCurrentUri']),
+            new TwigFunction('mail_for', [$this, 'getMailTo'])
         ];
     }
 
@@ -150,6 +152,30 @@ class TwigExtension extends AbstractExtension
     public function rightPad(string $text, string $pad, int $length): string
     {
         return str_pad($text, $length, $pad, STR_PAD_RIGHT);
+    }
+
+    /**
+     * @param string $decimal
+     * @param int $numberOfDigitsAfterDot
+     * @param string $dot
+     * @param string|null $postscript
+     * @return string
+     */
+    public function formatPrice(string $decimal, int $numberOfDigitsAfterDot, string $dot = '.', ?string $postscript = null): string
+    {
+        $parts = explode('.', $decimal, 2);
+
+        if (strlen($parts[0]) === 0)
+        {
+            $parts[0] = '0';
+        }
+
+        if (count($parts) === 1)
+        {
+            $parts[] = '';
+        }
+
+        return $parts[0].$dot.str_pad($parts[1], $numberOfDigitsAfterDot, '0', STR_PAD_RIGHT);
     }
 
     /**
