@@ -158,10 +158,9 @@ class TwigExtension extends AbstractExtension
      * @param string $decimal
      * @param int $numberOfDigitsAfterDot
      * @param string $dot
-     * @param string|null $postscript
      * @return string
      */
-    public function formatPrice(string $decimal, int $numberOfDigitsAfterDot, string $dot = '.', ?string $postscript = null): string
+    public function formatPrice(string $decimal, int $numberOfDigitsAfterDot, string $dot = '.'): string
     {
         $parts = explode('.', $decimal, 2);
 
