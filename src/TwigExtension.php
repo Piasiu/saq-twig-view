@@ -52,7 +52,10 @@ class TwigExtension extends AbstractExtension
             new TwigFilter('rpad', [$this, 'rightPad']),
             new TwigFilter('price', [$this, 'formatPrice']),
             new TwigFilter('trans', [$this, 'translate']),
-            new TwigFilter('ptrans', [$this, 'pluralTranslate'])
+            new TwigFilter('trans_e', [$this, 'translateFromErrors']),
+            new TwigFilter('trans_g', [$this, 'translateFromGeneral']),
+            new TwigFilter('trans_p', [$this, 'translatePlural']),
+            new TwigFilter('trans_pg', [$this, 'translatePluralFromGeneral'])
         ];
     }
 
@@ -192,11 +195,34 @@ class TwigExtension extends AbstractExtension
 
     /**
      * @param string $text
-     * @param int $value
      * @param array $parameters
      * @return string
      */
-    public function pluralTranslate(string $text, int $value, array $parameters = [], ?string $fileSubPath = null): string
+    public function translateFromErrors(string $text, array $parameters = []): string
+    {
+        $languageCode = $this->container->getRequest()->getAttribute('language');
+        return $this->translator->translate('errors', $text, $parameters, $languageCode);
+    }
+
+    /**
+     * @param string $text
+     * @param array $parameters
+     * @return string
+     */
+    public function translateFromGeneral(string $text, array $parameters = []): string
+    {
+        $languageCode = $this->container->getRequest()->getAttribute('language');
+        return $this->translator->translate('general', $text, $parameters, $languageCode);
+    }
+
+    /**
+     * @param string $text
+     * @param int $value
+     * @param array $parameters
+     * @param string|null $fileSubPath
+     * @return string
+     */
+    public function translatePlural(string $text, int $value, array $parameters = [], ?string $fileSubPath = null): string
     {
         if ($this->translator === null)
         {
@@ -205,10 +231,22 @@ class TwigExtension extends AbstractExtension
 
         $fileSubPath = $fileSubPath ?? $this->getSubPathFromRoute();
         $languageCode = $this->container->getRequest()->getAttribute('language');
-        return $this->translator->pluralTranslate($this->getSubPathFromRoute(), $text, $value, $parameters, $languageCode);
+        return $this->translator->pluralTranslate($fileSubPath, $text, $value, $parameters, $languageCode);
     }
 
-    private function getSubPathFromRoute(RequestInterface $request): string
+    /**
+     * @param string $text
+     * @param int $value
+     * @param array $parameters
+     * @return string
+     */
+    public function translatePluralFromGeneral(string $text, int $value, array $parameters = []): string
+    {
+        $languageCode = $this->container->getRequest()->getAttribute('language');
+        return $this->translator->pluralTranslate('general', $text, $value, $parameters, $languageCode);
+    }
+
+    private function getSubPathFromRoute(): string
     {
         if ($this->translator === null)
         {
@@ -217,6 +255,7 @@ class TwigExtension extends AbstractExtension
 
         /** @var Route $route */
         $route = $this->container->getRequest()->getAttribute('route');
-        return str_replace('-', DIRECTORY_SEPARATOR, $route->getName());
+        $subPath = str_replace('-', DIRECTORY_SEPARATOR, $route->getName());
+        return str_replace('_', '-', $subPath);
     }
 }
