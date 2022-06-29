@@ -5,7 +5,6 @@ use JetBrains\PhpStorm\Pure;
 use Saq\Exceptions\Container\ContainerException;
 use Saq\Exceptions\Container\ServiceNotFoundException;
 use Saq\Interfaces\ContainerInterface;
-use Saq\Interfaces\Http\RequestInterface;
 use Saq\Routing\Route;
 use Saq\Trans\Translator;
 use Twig\Extension\AbstractExtension;
@@ -54,6 +53,7 @@ class TwigExtension extends AbstractExtension
             new TwigFilter('trans', [$this, 'translate']),
             new TwigFilter('trans_e', [$this, 'translateFromErrors']),
             new TwigFilter('trans_g', [$this, 'translateFromGeneral']),
+            new TwigFilter('trans_c', [$this, 'translateConstant']),
             new TwigFilter('trans_p', [$this, 'translatePlural']),
             new TwigFilter('trans_pg', [$this, 'translatePluralFromGeneral'])
         ];
@@ -200,8 +200,7 @@ class TwigExtension extends AbstractExtension
      */
     public function translateFromErrors(string $text, array $parameters = []): string
     {
-        $languageCode = $this->container->getRequest()->getAttribute('language');
-        return $this->translator->translate('errors', $text, $parameters, $languageCode);
+        return $this->translate($text, $parameters, 'errors');
     }
 
     /**
@@ -211,8 +210,18 @@ class TwigExtension extends AbstractExtension
      */
     public function translateFromGeneral(string $text, array $parameters = []): string
     {
-        $languageCode = $this->container->getRequest()->getAttribute('language');
-        return $this->translator->translate('general', $text, $parameters, $languageCode);
+        return $this->translate($text, $parameters, 'general');
+    }
+
+    /**
+     * @param string $text
+     * @param int $value
+     * @param array $parameters
+     * @return string
+     */
+    public function translateConstant(string $text, int $value, array $parameters = []): string
+    {
+        return $this->translateFromGeneral($text.$value, $parameters);
     }
 
     /**
@@ -242,8 +251,7 @@ class TwigExtension extends AbstractExtension
      */
     public function translatePluralFromGeneral(string $text, int $value, array $parameters = []): string
     {
-        $languageCode = $this->container->getRequest()->getAttribute('language');
-        return $this->translator->pluralTranslate('general', $text, $value, $parameters, $languageCode);
+        $this->translatePlural($text, $value, $parameters, 'general');
     }
 
     private function getSubPathFromRoute(): string
