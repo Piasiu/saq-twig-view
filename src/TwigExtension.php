@@ -251,7 +251,7 @@ class TwigExtension extends AbstractExtension
      */
     public function translatePluralFromGeneral(string $text, int $value, array $parameters = []): string
     {
-        $this->translatePlural($text, $value, $parameters, 'general');
+        return $this->translatePlural($text, $value, $parameters, 'general');
     }
 
     private function getSubPathFromRoute(): string
