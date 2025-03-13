@@ -130,7 +130,7 @@ class TwigExtension extends AbstractExtension
      */
     public function getMailTo(string $email): string
     {
-        return "mailto:{$email}";
+        return "mailto:$email";
     }
 
     /**
@@ -154,7 +154,7 @@ class TwigExtension extends AbstractExtension
     #[Pure]
     public function rightPad(string $text, string $pad, int $length): string
     {
-        return str_pad($text, $length, $pad, STR_PAD_RIGHT);
+        return str_pad($text, $length, $pad);
     }
 
     /**
@@ -177,7 +177,7 @@ class TwigExtension extends AbstractExtension
             $parts[] = '';
         }
 
-        return $parts[0].$dot.str_pad($parts[1], $numberOfDigitsAfterDot, '0', STR_PAD_RIGHT);
+        return $parts[0].$dot.str_pad($parts[1], $numberOfDigitsAfterDot, '0');
     }
 
     /**

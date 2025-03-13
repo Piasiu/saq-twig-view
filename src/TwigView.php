@@ -3,7 +3,6 @@ namespace Saq\Views;
 
 use RuntimeException;
 use Saq\Interfaces\ContainerInterface;
-use Saq\Routing\Route;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -38,12 +37,12 @@ class TwigView
 
         $loader = new FilesystemLoader($settings['paths']);
 
-        $options = isset($settings['options']) ? $settings['options'] : [];
+        $options = $settings['options'] ?? [];
         $this->environment = new Environment($loader, $options);
         $this->environment->addGlobal('appSettings', $this->container->getSettings());
 
         $this->environment->addExtension(new TwigExtension($container));
-        $extensions = isset($settings['extensions']) ? $settings['extensions'] : [];
+        $extensions = $settings['extensions'] ?? [];
 
         foreach ($extensions as $extension)
         {
